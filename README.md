@@ -1,4 +1,5 @@
 Tapas
 =====
 
-Work in progress...
+Tapas is a triple store user interface based on grlc and YASR, and
+**work in progress**.
