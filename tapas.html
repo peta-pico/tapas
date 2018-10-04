@@ -57,7 +57,7 @@ input {
 
 <body>
 
-<h2>find_nanopub_with_text</h2>
+<h2 id="title">find_nanopub_with_text</h2>
 
 <p id="loading">Loading...</p>
 
@@ -88,6 +88,21 @@ input {
 
 <script>
 
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results==null){
+       return null;
+    }
+    else{
+       return decodeURI(results[1]) || 0;
+    }
+}
+
+api = $.urlParam('api');
+op = $.urlParam('op');
+
+$('#title').html(api + ': ' + op);
+
 var yasr = YASR(document.getElementById("yasr"));
 
 var transforms = {
@@ -105,8 +120,8 @@ var transforms = {
 
 var params = [];
 
-$.getJSON("http://grlc.io/api/peta-pico/nanopub-api/spec", function(data) {
-  $('#input-fields').json2html(data.paths['/find_nanopub_with_text'].get.parameters, transforms.form);
+$.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
+  $('#input-fields').json2html(data.paths['/' + op].get.parameters, transforms.form);
   $('#loading').hide();
   $('#content').show();
 });
@@ -114,7 +129,7 @@ $.getJSON("http://grlc.io/api/peta-pico/nanopub-api/spec", function(data) {
 document.getElementById('submit').onclick=showResults
 
 function showResults() {
-  var url = 'http://grlc.io/api/peta-pico/nanopub-api/find_nanopub_with_text?endpoint=http%3A%2F%2Fgraphdb.dumontierlab.com%2Frepositories%2Fnanopubs'
+  var url = "http://grlc.io/api/" + api + '/' + op + '?&'
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
     url = url + '&' + n + '=' + encodeURIComponent(document.getElementById('input_' + n).value);
