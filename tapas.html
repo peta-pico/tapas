@@ -78,7 +78,6 @@ input {
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
-
 <script src='http://cdn.jsdelivr.net/yasr/2.4/yasr.bundled.min.js'></script>
 <!--
 <script src="lib/jquery.min.js"></script>
@@ -121,7 +120,7 @@ var transforms = {
 var params = [];
 
 $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
-  $('#input-fields').json2html(data.paths['/' + op].get.parameters, transforms.form);
+  $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
   $('#loading').hide();
   $('#content').show();
 });
@@ -129,7 +128,7 @@ $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
 document.getElementById('submit').onclick=showResults
 
 function showResults() {
-  var url = "http://grlc.io/api/" + api + '/' + op + '?&'
+  var url = "http://grlc.io/api/" + api + op + '?&'
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
     url = url + '&' + n + '=' + encodeURIComponent(document.getElementById('input_' + n).value);
