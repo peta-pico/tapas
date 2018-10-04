@@ -59,7 +59,9 @@ input {
 
 <h2 id="title">find_nanopub_with_text</h2>
 
-<p id="loading">Loading...</p>
+<p id="loading" style="display:none">Loading...</p>
+
+<div id="oplist" style="display:none"></div>
 
 <div id="content" style="display:none">
 
@@ -88,25 +90,22 @@ input {
 <script>
 
 $.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results==null){
-       return null;
-    }
-    else{
-       return decodeURI(results[1]) || 0;
-    }
+  var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+  if (results==null){
+    return null;
+  } else{
+    return decodeURI(results[1]) || 0;
+  }
 }
 
-api = $.urlParam('api');
-op = $.urlParam('op');
-
-$('#title').html(api + ': ' + op);
+var api = $.urlParam('api');
+var op = $.urlParam('op');
 
 var yasr = YASR(document.getElementById("yasr"));
 
 var transforms = {
   form:{'<>':'p', html:function() {
-  if (this.name != "page" && this.name != "endpoint") {
+    if (this.name != "page" && this.name != "endpoint") {
       params.push(this.name);
       return( json2html.transform(this, transforms.input) );
     }
@@ -114,18 +113,9 @@ var transforms = {
   input:{'<>':'div', 'html':[
     {'<>':'span', 'text':'${name}: '},
     {'<>':'input', 'id':'input_${name}'}
-  ]}
+  ]},
+  ops:{'<>':'ul', 'html':[{'<>':'li', 'html':[{'<>':'a', 'href':('?api=' + api + '&op=${key}'), 'text':'${key}'}] }] }
 };
-
-var params = [];
-
-$.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
-  $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
-  $('#loading').hide();
-  $('#content').show();
-});
-
-document.getElementById('submit').onclick=showResults
 
 function showResults() {
   var url = "http://grlc.io/api/" + api + op + '?&'
@@ -145,7 +135,33 @@ function showResults() {
   })
 }
 
-document.getElementById('submit').onclick=showResults
+var params = [];
+
+if (op) {
+  $('#title').html(api + ': ' + op);
+
+  $('#loading').show();
+  $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
+    $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
+    $('#loading').hide();
+    $('#oplist').hide();
+    $('#content').show();
+  });
+
+  document.getElementById('submit').onclick=showResults
+
+} else if (api) {
+  $('#title').html(api);
+
+  $('#loading').show();
+  $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
+    $('#oplist').json2html(Object.keys(data.paths).map(key => ({ key:key })), transforms.ops);
+    $('#loading').hide();
+    $('#oplist').show();
+  });
+} else {
+  $('#title').html('Tapas: add ?api=... to URL');
+}
 
 </script>
 </body>
