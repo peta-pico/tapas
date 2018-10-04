@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tapas test</title>
+<link href='http://cdn.jsdelivr.net/g/yasr@2.4(yasr.min.css)' rel='stylesheet' type='text/css'/>
+<!--<link href='lib/yasr.css' rel='stylesheet' type='text/css'/>-->
+
+<style>
+body {
+  background-color: #fff;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #333;
+}
+#form {
+  border-bottom-width: 3px;
+  border-color: #333;
+  border-bottom-style: solid;
+}
+button {
+  color:#333;
+  border:1px solid transparent;
+  background-color:#fff;
+  border-color:#ccc;
+  border-width:1px;
+  display:inline-block;
+  text-align:center;
+  vertical-align:middle;
+  cursor:pointer;
+  white-space:nowrap;
+  padding:6px 12px;
+  border-radius:4px;
+  overflow:visible;
+  box-sizing:border-box;
+}
+button:hover {
+  outline:0;
+  background-color:#ebebeb;
+  border-color:#adadad;
+}
+button:active {
+  color:#fff;
+  outline:0;
+  background-color:#337ab7;
+  border-color:#337ab7
+}
+input {
+  margin-left:.5em;
+}
+#page-input {
+  width: 3em;
+}
+</style>
+</head>
+
+<body>
+
+<h2>find_nanopub_with_text</h2>
+
+<p id="loading">Loading...</p>
+
+<div id="content" style="display:none">
+
+<div id="form">
+
+<div id="input-fields"></div>
+
+<p><button id="submit">submit</button></p>
+
+</div>
+
+<div id="yasr"></div>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+
+<script src='http://cdn.jsdelivr.net/yasr/2.4/yasr.bundled.min.js'></script>
+<!--
+<script src="lib/jquery.min.js"></script>
+<script src='lib/yasr.bundled.min.js'></script>
+-->
+
+
+<script>
+
+var yasr = YASR(document.getElementById("yasr"));
+
+var transforms = {
+  form:{'<>':'p', html:function() {
+  if (this.name != "page" && this.name != "endpoint") {
+      params.push(this.name);
+      return( json2html.transform(this, transforms.input) );
+    }
+  }},
+  input:{'<>':'div', 'html':[
+    {'<>':'span', 'text':'${name}: '},
+    {'<>':'input', 'id':'input_${name}'}
+  ]}
+};
+
+var params = [];
+
+$.getJSON("http://grlc.io/api/peta-pico/nanopub-api/spec", function(data) {
+  $('#input-fields').json2html(data.paths['/find_nanopub_with_text'].get.parameters, transforms.form);
+  $('#loading').hide();
+  $('#content').show();
+});
+
+document.getElementById('submit').onclick=showResults
+
+function showResults() {
+  var url = 'http://grlc.io/api/peta-pico/nanopub-api/find_nanopub_with_text?endpoint=http%3A%2F%2Fgraphdb.dumontierlab.com%2Frepositories%2Fnanopubs'
+  for (var i = 0; i < params.length; i++) {
+    var n = params[i];
+    url = url + '&' + n + '=' + encodeURIComponent(document.getElementById('input_' + n).value);
+  }
+  $.ajax({
+    type: "GET",
+    url: url,
+    success: function(data,status,xhr) {
+        yasr.setResponse({
+          response:data,
+          contentType: 'text/csv'
+        });
+    }
+  })
+}
+
+document.getElementById('submit').onclick=showResults
+
+</script>
+</body>
+
