@@ -115,7 +115,7 @@ $.urlParam = function(name) {
 var api = $.urlParam('api');
 var op = $.urlParam('op');
 
-var yasr;
+var yasr = YASR($("#yasr"));
 
 var params = [];
 var requiredParams = [];
@@ -165,8 +165,7 @@ var transforms = {
 };
 
 function showResults() {
-  $("#yasr").empty()
-  yasr = YASR($("#yasr"));
+  yasr.setResponse({response:'getting results...'});
   var url = "http://grlc.io/api/" + api + op + '?&'
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
