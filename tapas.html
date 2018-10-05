@@ -14,6 +14,15 @@ body {
   line-height: 1.42857;
   color: #333;
 }
+a{
+  color:#428bca;
+  text-decoration:none
+}
+a:hover,a:active{
+  outline:0;
+  color:#2a6496;
+  text-decoration:underline
+}
 #form {
   border-bottom-width: 3px;
   border-color: #333;
@@ -49,6 +58,9 @@ button:active {
 input {
   margin-left:.5em;
 }
+.string_input, .iri_input {
+  width: 50em;
+}
 #page-input {
   width: 3em;
 }
@@ -69,7 +81,7 @@ input {
 
 <div id="form">
 
-<div id="input-fields"></div>
+<table id="input-fields"></table>
 
 <p><button id="submit">submit</button></p>
 
@@ -103,10 +115,13 @@ $.urlParam = function(name) {
 var api = $.urlParam('api');
 var op = $.urlParam('op');
 
-var yasr = YASR(document.getElementById("yasr"));
+var yasr;
+
+var params = [];
+var requiredParams = [];
 
 var transforms = {
-  form:{'<>':'p', html:function() {
+  form:{'<>':'tr', html:function() {
     if (this.name != "page" && this.name != "endpoint") {
       params.push(this.name);
       if (this.type === "iri") {
@@ -114,16 +129,34 @@ var transforms = {
       } else {
         return( json2html.transform(this, transforms.string_input) );
       }
+    } else {
+      return '';
     }
   }},
-  string_input:{'<>':'div', 'html':[
-    {'<>':'span', 'text':'${name}: '},
-    {'<>':'input', 'class':'string_input', 'id':'input_${name}'}
-  ]},
-  iri_input:{'<>':'div', 'html':[
-    {'<>':'span', 'text':'${name}: '},
-    {'<>':'input', 'class':'iri_input', 'placeholder':'http://...', 'id':'input_${name}'}
-  ]},
+  string_input:[
+    {'<>':'td', 'text':'${name}: '},
+    {'<>':'td', 'html':[
+      {'<>':'input', 'class':'string_input', 'id':'input_${name}'},
+      {'<>':'span', 'text':function() {
+        if (this.required) {
+          requiredParams.push(this.name);
+          return ' (required)';
+        }
+      }}
+    ]}
+  ],
+  iri_input:[
+    {'<>':'td', 'text':'${name}: '},
+    {'<>':'td', 'html':[
+      {'<>':'input', 'class':'iri_input', 'placeholder':'http://...', 'id':'input_${name}'},
+      {'<>':'span', 'text':function() {
+        if (this.required) {
+          requiredParams.push(this.name);
+          return ' (required)';
+        }
+      }}
+    ]}
+  ],
   ops:{'<>':'ul', 'html':[
     {'<>':'li', 'html':[
       {'<>':'a', 'href':('?api=' + api + '&op=${key}'), 'text':'${key}'}
@@ -132,6 +165,8 @@ var transforms = {
 };
 
 function showResults() {
+  $("#yasr").empty()
+  yasr = YASR($("#yasr"));
   var url = "http://grlc.io/api/" + api + op + '?&'
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
@@ -149,10 +184,8 @@ function showResults() {
   })
 }
 
-var params = [];
-
 if (op) {
-  $('#title').html(api.replace(/.*\//g,'') + ': ' + op.replace(/^\//, ''));
+  $('#title').html('<a href="?api=' + api + '">' + api.replace(/.*\//g,'') + '</a>: ' + op.replace(/^\//, ''));
 
   $('#loading').show();
   $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
