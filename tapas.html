@@ -65,6 +65,8 @@ input {
 
 <div id="content" style="display:none">
 
+<p id="summary"></p>
+
 <div id="form">
 
 <div id="input-fields"></div>
@@ -89,12 +91,12 @@ input {
 
 <script>
 
-$.urlParam = function(name){
-  var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-  if (results==null){
+$.urlParam = function(name) {
+  var p = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+  if (p == null) {
     return null;
-  } else{
-    return decodeURI(results[1]) || 0;
+  } else {
+    return decodeURI(p[1]) || 0;
   }
 }
 
@@ -107,14 +109,26 @@ var transforms = {
   form:{'<>':'p', html:function() {
     if (this.name != "page" && this.name != "endpoint") {
       params.push(this.name);
-      return( json2html.transform(this, transforms.input) );
+      if (this.type === "iri") {
+        return( json2html.transform(this, transforms.iri_input) );
+      } else {
+        return( json2html.transform(this, transforms.string_input) );
+      }
     }
   }},
-  input:{'<>':'div', 'html':[
+  string_input:{'<>':'div', 'html':[
     {'<>':'span', 'text':'${name}: '},
-    {'<>':'input', 'id':'input_${name}'}
+    {'<>':'input', 'class':'string_input', 'id':'input_${name}'}
   ]},
-  ops:{'<>':'ul', 'html':[{'<>':'li', 'html':[{'<>':'a', 'href':('?api=' + api + '&op=${key}'), 'text':'${key}'}] }] }
+  iri_input:{'<>':'div', 'html':[
+    {'<>':'span', 'text':'${name}: '},
+    {'<>':'input', 'class':'iri_input', 'placeholder':'http://...', 'id':'input_${name}'}
+  ]},
+  ops:{'<>':'ul', 'html':[
+    {'<>':'li', 'html':[
+      {'<>':'a', 'href':('?api=' + api + '&op=${key}'), 'text':'${key}'}
+    ]}
+  ]}
 };
 
 function showResults() {
@@ -127,10 +141,10 @@ function showResults() {
     type: "GET",
     url: url,
     success: function(data,status,xhr) {
-        yasr.setResponse({
-          response:data,
-          contentType: 'text/csv'
-        });
+      yasr.setResponse({
+        response:data,
+        contentType: 'text/csv'
+      });
     }
   })
 }
@@ -138,11 +152,14 @@ function showResults() {
 var params = [];
 
 if (op) {
-  $('#title').html(api + ': ' + op);
+  $('#title').html(api.replace(/.*\//g,'') + ': ' + op.replace(/^\//, ''));
 
   $('#loading').show();
   $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
     $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
+    if (data.paths[op].get.summary) {
+      $('#summary').html(data.paths[op].get.summary);
+    }
     $('#loading').hide();
     $('#oplist').hide();
     $('#content').show();
