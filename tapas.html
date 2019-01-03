@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Tapas test</title>
+<title>Tapas</title>
 <link href='http://cdn.jsdelivr.net/g/yasr@2.4(yasr.min.css)' rel='stylesheet' type='text/css'/>
 <!--<link href='lib/yasr.css' rel='stylesheet' type='text/css'/>-->
 
@@ -68,8 +68,9 @@ input {
 </head>
 
 <body>
+<script src='tapas-config.js'></script>
 
-<h2 id="title">find_nanopub_with_text</h2>
+<h2 id="title">Tapas</h2>
 
 <p id="loading" style="display:none">Loading...</p>
 
@@ -166,7 +167,7 @@ var transforms = {
 
 function showResults() {
   yasr.setResponse({response:'getting results...'});
-  var url = "http://grlc.io/api/" + api + op + '?&'
+  var url = grlcInstance + "/api/" + api + op + '?&'
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
     url = url + '&' + n + '=' + encodeURIComponent(document.getElementById('input_' + n).value);
@@ -187,7 +188,7 @@ if (op) {
   $('#title').html('<a href="?api=' + api + '">' + api.replace(/.*\//g,'') + '</a>: ' + op.replace(/^\//, ''));
 
   $('#loading').show();
-  $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
+  $.getJSON(grlcInstance + "/api/" + api + "/spec", function(data) {
     $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
     if (data.paths[op].get.summary) {
       $('#summary').html(data.paths[op].get.summary);
@@ -203,7 +204,7 @@ if (op) {
   $('#title').html(api);
 
   $('#loading').show();
-  $.getJSON("http://grlc.io/api/" + api + "/spec", function(data) {
+  $.getJSON(grlcInstance + "/api/" + api + "/spec", function(data) {
     $('#oplist').json2html(Object.keys(data.paths).map(key => ({ key:key })), transforms.ops);
     $('#loading').hide();
     $('#oplist').show();
