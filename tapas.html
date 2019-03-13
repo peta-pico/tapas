@@ -118,6 +118,28 @@ $.urlParam = function(name) {
 var api = $.urlParam('api');
 var op = $.urlParam('op');
 
+if ((!api && defaultApi) || !apiChangeable) {
+  api = defaultApi;
+}
+
+var apiUrlString = 'api=' + api;
+var apiUrlStringP = apiUrlString + '&';
+var apiLongName = api;
+var apiShortName;
+if (api) apiShortName = api.replace(/.*\//g,'');
+
+if (defaultApi === api) {
+  apiUrlString = '';
+  apiUrlStringP = '';
+  if (defaultApiShortName) {
+    apiShortName = defaultApiShortName;
+    apiLongName = defaultApiShortName;
+  }
+  if (defaultApiLongName) {
+    apiLongName = defaultApiLongName;
+  }
+}
+
 var yasr = YASR($("#yasr"));
 
 var params = [];
@@ -162,7 +184,7 @@ var transforms = {
   ],
   ops:{'<>':'ul', 'html':[
     {'<>':'li', 'html':[
-      {'<>':'a', 'href':('?api=' + api + '&op=${key}'), 'text':'${key}'}
+      {'<>':'a', 'href':('?' + apiUrlStringP + 'op=${key}'), 'text':'${key}'}
     ]}
   ]}
 };
@@ -187,7 +209,7 @@ function showResults() {
 }
 
 if (op) {
-  $('#title').html('<a href="?api=' + api + '">' + api.replace(/.*\//g,'') + '</a>: ' + op.replace(/^\//, ''));
+  $('#title').html('<a href="?' + apiUrlString + '">' + apiShortName + '</a>: ' + op.replace(/^\//, ''));
 
   $('#loading').show();
   $.getJSON(grlcInstance + "/api/" + api + "/spec", function(data) {
@@ -203,7 +225,7 @@ if (op) {
   document.getElementById('submit').onclick=showResults
 
 } else if (api) {
-  $('#title').html(api);
+  $('#title').html(apiLongName);
 
   $('#loading').show();
   $.getJSON(grlcInstance + "/api/" + api + "/spec", function(data) {
@@ -211,7 +233,7 @@ if (op) {
     $('#loading').hide();
     $('#oplist').show();
   });
-} else {
+} else if (apiChangeable) {
   $('#title').html('Tapas: add ?api=... to URL');
 }
 
