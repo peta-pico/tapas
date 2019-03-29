@@ -5,6 +5,7 @@
 <title>Tapas</title>
 <link href='http://cdn.jsdelivr.net/g/yasr@2.4(yasr.min.css)' rel='stylesheet' type='text/css'/>
 <!--<link href='lib/yasr.css' rel='stylesheet' type='text/css'/>-->
+<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css" rel="stylesheet" type="text/css">
 
 <style>
 body {
@@ -70,11 +71,12 @@ input {
 table.nested {
   border-collapse: collapse;
   border: 1px solid #bbb;
+  width: 100%;
 }
-th {
+th.nested {
   border-bottom: 1px solid black;
 }
-td {
+td.nested {
   padding: 5px;
   margin: 0;
 }
@@ -118,6 +120,7 @@ td {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
 <script src='http://cdn.jsdelivr.net/yasr/2.4/yasr.bundled.min.js'></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
 <!--
 <script src="lib/jquery.min.js"></script>
 <script src="lib/json2html.min.js"></script>
@@ -213,19 +216,74 @@ var transforms = {
 
 var urlPattern = new RegExp('^https?:\\/\\/\\S*$','i');
 
+function getTableRows(data, columns) {
+  var rows = [];
+  for (var rowId = 0; rowId < data.length; rowId++) {
+    var row = [];
+    for (var colId = 0; colId < columns.length; colId++) {
+      var value = data[rowId][columns[colId]];
+      if (value == null) value = "";
+      if (typeof value === 'object') {
+        var ks = getKeyScheme(value);
+        if (ks == '["language","value"]' || ks == '["datatype","value"]') {
+          row.push("<span class='nonUri'>" + formatLiteral(value) + "</span>");
+        } else {
+          var div = $('<div/>');
+          var table = $('<table class="nested"/>');
+          div.append(table);
+          if (!Array.isArray(value)) value = [value];
+          makeTable(value, table);
+          row.push(div.html());
+        }
+      } else if (urlPattern.test(value)) {
+        row.push("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>");
+      } else {
+        row.push(value);
+      }
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+function getTableColumns(columns) {
+  tc = [];
+  for (var i = 0; i < columns.length; i++) {
+    tc.push({title:columns[i]});
+  }
+  return tc;
+}
+
+function makeResultTable(data) {
+  table = $('<table id="datatable" class="nested"/>');
+  $('#result').append(table);
+  var columns = makeTableHeader(data, null);
+  $('#datatable').DataTable({
+    autoWidth: true,
+    dom: '<"dtTopHeader"ilf>rtip',
+    order: [],
+    pageLength: 50,
+    lengthMenu: [[10, 50, 100, 1000, -1], [10, 50, 100, 1000, "All"]],
+    lengthChange: true,
+    pagingType: "full_numbers",
+    data: getTableRows(data, columns),
+    columns: getTableColumns(columns)
+  });
+}
+
 function makeTable(data, element) {
   var columns = makeTableHeader(data, element);
   for (var i = 0; i < data.length; i++) {
-    var row = $('<tr/>');
+    var row = $('<tr class="nested"/>');
     for (var c = 0; c < columns.length; c++) {
       var value = data[i][columns[c]];
       if (value == null) value = "";
       if (typeof value === 'object') {
         var ks = getKeyScheme(value);
         if (ks == '["language","value"]' || ks == '["datatype","value"]') {
-          row.append($('<td/>').html("<span class='nonUri'>" + formatLiteral(value) + "</span>"));
+          row.append($('<td class="nested"/>').html("<span class='nonUri'>" + formatLiteral(value) + "</span>"));
         } else {
-          var cell = $('<td/>');
+          var cell = $('<td class="nested"/>');
           row.append(cell);
           var table = $('<table class="nested"/>');
           cell.append(table);
@@ -233,9 +291,9 @@ function makeTable(data, element) {
           makeTable(value, table);
         }
       } else if (urlPattern.test(value)) {
-        row.append($('<td/>').html("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>"));
+        row.append($('<td class="nested"/>').html("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>"));
       } else {
-        row.append($('<td/>').html(value));
+        row.append($('<td class="nested"/>').html(value));
       }
     }
     element.append(row);
@@ -245,9 +303,6 @@ function makeTable(data, element) {
 function getKeyScheme(obj) {
   return JSON.stringify(Object.keys(obj).sort());
 }
-
-// ---
-// copied and adapted from YASR code:
 
 function formatLiteral(literal) {
   var stringRepresentation = escapeHtmlEntities(literal.value);
@@ -271,20 +326,18 @@ function escapeHtmlEntities(unescaped) {
     return ("" + unescaped).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-// ---
-
 function makeTableHeader(data, element) {
   var columns = [];
-  var header = $('<tr/>');
+  var header = $('<tr class="nested"/>');
   for (var i = 0; i < data.length; i++) {
     for (var key in data[i]) {
       if ($.inArray(key, columns) == -1) {
         columns.push(key);
-        header.append($('<th/>').html(key));
+        header.append($('<th class="nested"/>').html(key));
       }
     }
   }
-  element.append(header);
+  if (element != null) element.append(header);
   return columns;
 }
 
@@ -322,9 +375,7 @@ function showResults() {
     success: function(data,status,xhr) {
       $("#result").empty();
       if (jsonQuery) {
-        table = $('<table class="nested"/>');
-        $('#result').append(table);
-        makeTable(data, table);
+        makeResultTable(data);
       } else {
         YASR($("#result")).setResponse({
           response:data,
