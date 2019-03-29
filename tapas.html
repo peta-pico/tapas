@@ -169,7 +169,7 @@ var transforms = {
   string_input:[
     {'<>':'td', 'text':'${name}: '},
     {'<>':'td', 'html':[
-      {'<>':'input', 'class':'string_input', 'id':'input_${name}'},
+      {'<>':'input', 'class':'string_input', 'id':'input_${name}', 'value':'${default}'},
       {'<>':'span', 'text':function() {
         if (this.required) {
           requiredParams.push(this.name);
