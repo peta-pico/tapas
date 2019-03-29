@@ -189,6 +189,19 @@ var transforms = {
   ]}
 };
 
+var specCache = {};
+
+function getSpec(url, success) {
+  if (url in specCache) {
+    success(specCache[url]);
+  } else {
+    $.getJSON(url, function(spec) {
+      specCache[url] = spec;
+      success(spec);
+    });
+  }
+}
+
 function showResults() {
   yasr.setResponse({response:'getting results...'});
   var url = grlcInstance + "/api/" + api + op + '?&'
@@ -212,7 +225,7 @@ if (op) {
   $('#title').html('<a href="?' + apiUrlString + '">' + apiShortName + '</a>: ' + op.replace(/^\//, ''));
 
   $('#loading').show();
-  $.getJSON(grlcInstance + "/api/" + api + "/spec", function(data) {
+  getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
     $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
     if (data.paths[op].get.summary) {
       $('#summary').html(data.paths[op].get.summary);
@@ -228,7 +241,7 @@ if (op) {
   $('#title').html(apiLongName);
 
   $('#loading').show();
-  $.getJSON(grlcInstance + "/api/" + api + "/spec", function(data) {
+  getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
     $('#oplist').json2html(Object.keys(data.paths).map(key => ({ key:key })), transforms.ops);
     $('#loading').hide();
     $('#oplist').show();
