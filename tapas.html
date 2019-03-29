@@ -75,6 +75,10 @@ input {
 
 <div id="oplist" style="display:none"></div>
 
+<div id="refresh" style="display:none">
+<p><button onclick="sessionStorage.setItem('grlcSpecCache', null); location.reload();">refresh</button></p>
+</div>
+
 <div id="content" style="display:none">
 
 <p id="summary"></p>
@@ -252,6 +256,7 @@ if (op) {
     $('#oplist').json2html(Object.keys(data.paths).map(key => ({ key:key })), transforms.ops);
     $('#loading').hide();
     $('#oplist').show();
+    $('#refresh').show();
   });
 } else if (apiChangeable) {
   $('#title').html('Tapas: add ?api=... to URL');
