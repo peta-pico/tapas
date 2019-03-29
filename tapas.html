@@ -87,7 +87,9 @@ input {
 
 </div>
 
-<div id="yasr"></div>
+<div id="result">
+<p>Click 'submit' above to show results.</p>
+</div>
 
 </div>
 
@@ -139,8 +141,6 @@ if (defaultApi === api) {
     apiLongName = defaultApiLongName;
   }
 }
-
-var yasr = YASR($("#yasr"));
 
 var params = [];
 var requiredParams = [];
@@ -194,9 +194,8 @@ var specCache;
 function getSpec(url, success) {
   try {
     specCache = JSON.parse(sessionStorage.getItem("grlcSpecCache"));
-  } catch (error) {
-    specCache = {}
-  }
+  } catch (error) {}
+  if (specCache == null) specCache = {};
   if (url in specCache) {
     success(specCache[url]);
   } else {
@@ -209,7 +208,8 @@ function getSpec(url, success) {
 }
 
 function showResults() {
-  yasr.setResponse({response:'getting results...'});
+  $("#result").empty();
+  $("#result").append($('<p>getting results...</p>'));
   var url = grlcInstance + "/api/" + api + op + '?&'
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
@@ -219,7 +219,8 @@ function showResults() {
     type: "GET",
     url: url,
     success: function(data,status,xhr) {
-      yasr.setResponse({
+      $("#result").empty();
+      YASR($("#result")).setResponse({
         response:data,
         contentType: 'text/csv'
       });
