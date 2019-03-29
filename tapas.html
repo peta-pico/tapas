@@ -14,11 +14,11 @@ body {
   line-height: 1.42857;
   color: #333;
 }
-a{
+a {
   color:#428bca;
   text-decoration:none
 }
-a:hover,a:active{
+a:hover, a:active {
   outline:0;
   color:#2a6496;
   text-decoration:underline
@@ -63,6 +63,20 @@ input {
 }
 #page-input {
   width: 3em;
+}
+#result {
+  margin-top: 1em;
+}
+table.nested {
+  border-collapse: collapse;
+  border: 1px solid #bbb;
+}
+th {
+  border-bottom: 1px solid black;
+}
+td {
+  padding: 5px;
+  margin: 0;
 }
 </style>
 </head>
@@ -197,6 +211,7 @@ var transforms = {
   ]}
 };
 
+var urlPattern = new RegExp('^https?:\\/\\/\\S*$','i');
 
 function makeTable(data, element) {
   var columns = makeTableHeader(data, element);
@@ -206,12 +221,19 @@ function makeTable(data, element) {
       var value = data[i][columns[c]];
       if (value == null) value = "";
       if (typeof value === 'object') {
-        var cell = $('<td/>');
-        row.append(cell);
-        var table = $('<table/>');
-        cell.append(table);
-        if (!Array.isArray(value)) value = [value];
-        makeTable(value, table);
+        var ks = getKeyScheme(value);
+        if (ks == '["language","value"]' || ks == '["datatype","value"]') {
+          row.append($('<td/>').html("<span class='nonUri'>" + formatLiteral(value) + "</span>"));
+        } else {
+          var cell = $('<td/>');
+          row.append(cell);
+          var table = $('<table class="nested"/>');
+          cell.append(table);
+          if (!Array.isArray(value)) value = [value];
+          makeTable(value, table);
+        }
+      } else if (urlPattern.test(value)) {
+        row.append($('<td/>').html("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>"));
       } else {
         row.append($('<td/>').html(value));
       }
@@ -219,6 +241,37 @@ function makeTable(data, element) {
     element.append(row);
   }
 }
+
+function getKeyScheme(obj) {
+  return JSON.stringify(Object.keys(obj).sort());
+}
+
+// ---
+// copied and adapted from YASR code:
+
+function formatLiteral(literal) {
+  var stringRepresentation = escapeHtmlEntities(literal.value);
+  if ("language" in literal) {
+    stringRepresentation = '"' + stringRepresentation + '"<sup>@' + literal.language + "</sup>";
+  } else if ("datatype" in literal) {
+    var xmlSchemaNs = "http://www.w3.org/2001/XMLSchema#";
+    var dataType = literal.datatype;
+    if (dataType.indexOf(xmlSchemaNs) === 0) {
+      dataType = "xsd:" + dataType.substring(xmlSchemaNs.length);
+    } else {
+      dataType = "&lt;" + dataType + "&gt;";
+    }
+
+    stringRepresentation = '"' + stringRepresentation + '"<sup>^^' + dataType + "</sup>";
+  }
+  return stringRepresentation;
+}
+
+function escapeHtmlEntities(unescaped) {
+    return ("" + unescaped).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// ---
 
 function makeTableHeader(data, element) {
   var columns = [];
@@ -269,7 +322,7 @@ function showResults() {
     success: function(data,status,xhr) {
       $("#result").empty();
       if (jsonQuery) {
-        table = $('<table/>');
+        table = $('<table class="nested"/>');
         $('#result').append(table);
         makeTable(data, table);
       } else {
