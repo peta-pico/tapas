@@ -197,9 +197,47 @@ var transforms = {
   ]}
 };
 
-var specCache;
+
+function makeTable(data, element) {
+  var columns = makeTableHeader(data, element);
+  for (var i = 0; i < data.length; i++) {
+    var row = $('<tr/>');
+    for (var c = 0; c < columns.length; c++) {
+      var value = data[i][columns[c]];
+      if (value == null) value = "";
+      if (typeof value === 'object') {
+        var cell = $('<td/>');
+        row.append(cell);
+        var table = $('<table/>');
+        cell.append(table);
+        if (!Array.isArray(value)) value = [value];
+        makeTable(value, table);
+      } else {
+        row.append($('<td/>').html(value));
+      }
+    }
+    element.append(row);
+  }
+}
+
+function makeTableHeader(data, element) {
+  var columns = [];
+  var header = $('<tr/>');
+  for (var i = 0; i < data.length; i++) {
+    for (var key in data[i]) {
+      if ($.inArray(key, columns) == -1) {
+        columns.push(key);
+        header.append($('<th/>').html(key));
+      }
+    }
+  }
+  element.append(header);
+  return columns;
+}
+
 
 function getSpec(url, success) {
+  var specCache;
   try {
     specCache = JSON.parse(sessionStorage.getItem("grlcSpecCache"));
   } catch (error) {}
@@ -215,6 +253,8 @@ function getSpec(url, success) {
   }
 }
 
+var jsonQuery = false;
+
 function showResults() {
   $("#result").empty();
   $("#result").append($('<p>getting results...</p>'));
@@ -228,10 +268,16 @@ function showResults() {
     url: url,
     success: function(data,status,xhr) {
       $("#result").empty();
-      YASR($("#result")).setResponse({
-        response:data,
-        contentType: 'text/csv'
-      });
+      if (jsonQuery) {
+        table = $('<table/>');
+        $('#result').append(table);
+        makeTable(data, table);
+      } else {
+        YASR($("#result")).setResponse({
+          response:data,
+          contentType: 'text/csv'
+        });
+      }
     }
   })
 }
@@ -241,9 +287,16 @@ if (op) {
 
   $('#loading').show();
   getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
-    $('#input-fields').json2html(data.paths[op].get.parameters, transforms.form);
-    if (data.paths[op].get.summary) {
-      $('#summary').html(data.paths[op].get.summary);
+    var opSpec = data.paths[op].get;
+    $('#input-fields').json2html(opSpec.parameters, transforms.form);
+    if (opSpec.summary) {
+      $('#summary').html(opSpec.summary);
+    }
+    var d = opSpec.description;
+    for (i = 0; i < d.length; i++) {
+      if (d.charAt(i) == '\n' || d.charAt(i) == ' ' || d.charAt(i) == '`') continue;
+      if (d.charAt(i) == '{') jsonQuery = true;
+      break;
     }
     $('#loading').hide();
     $('#oplist').hide();
