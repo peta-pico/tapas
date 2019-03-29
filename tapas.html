@@ -106,6 +106,8 @@ input {
 <script src='http://cdn.jsdelivr.net/yasr/2.4/yasr.bundled.min.js'></script>
 <!--
 <script src="lib/jquery.min.js"></script>
+<script src="lib/json2html.min.js"></script>
+<script src="lib/jquery.json2html.min.js"></script>
 <script src='lib/yasr.bundled.min.js'></script>
 -->
 
@@ -151,15 +153,17 @@ var requiredParams = [];
 
 var transforms = {
   form:{'<>':'tr', html:function() {
-    if (this.name != "page" && this.name != "endpoint") {
+    if (hidePageField && this.name == "page") {
+      return '';
+    } else if (hideEndpointField && this.name == "endpoint") {
+      return '';
+    } else {
       params.push(this.name);
       if (this.type === "iri") {
         return( json2html.transform(this, transforms.iri_input) );
       } else {
         return( json2html.transform(this, transforms.string_input) );
       }
-    } else {
-      return '';
     }
   }},
   string_input:[
