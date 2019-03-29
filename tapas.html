@@ -189,14 +189,20 @@ var transforms = {
   ]}
 };
 
-var specCache = {};
+var specCache;
 
 function getSpec(url, success) {
+  try {
+    specCache = JSON.parse(sessionStorage.getItem("grlcSpecCache"));
+  } catch (error) {
+    specCache = {}
+  }
   if (url in specCache) {
     success(specCache[url]);
   } else {
     $.getJSON(url, function(spec) {
       specCache[url] = spec;
+      sessionStorage.setItem("grlcSpecCache", JSON.stringify(specCache));
       success(spec);
     });
   }
