@@ -94,13 +94,13 @@ table.dataTable tr {
 
 <h2 id="title">Tapas</h2>
 
+<div id="refresh" style="display:none">
+<p><a href="#" onclick="localStorage.setItem('grlcSpecCache', null); location.reload();">(click here to refresh)</a></p>
+</div>
+
 <p id="loading" style="display:none">Loading...</p>
 
 <div id="oplist" style="display:none"></div>
-
-<div id="refresh" style="display:none">
-<p><button onclick="localStorage.setItem('grlcSpecCache', null); location.reload();">refresh</button></p>
-</div>
 
 <div id="content" style="display:none">
 
@@ -420,6 +420,12 @@ if (op) {
 
   $('#loading').show();
   getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
+    if (!(op in data.paths)) {
+      $("#loading").empty();
+      $("#loading").append($("<p>Error: Couldn't find this operation. Refreshing might help.</p>"));
+      $('#refresh').show();
+      return;
+    }
     var opSpec = data.paths[op].get;
     $('#input-fields').json2html(opSpec.parameters, transforms.form);
     if (opSpec.summary) {
@@ -434,6 +440,7 @@ if (op) {
     $('#loading').hide();
     $('#oplist').hide();
     $('#content').show();
+    $('#refresh').show();
   });
 
   document.getElementById('submit').onclick=showResults
