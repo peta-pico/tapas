@@ -237,8 +237,6 @@ function getTableRows(data, columns) {
         var ks = getKeyScheme(value);
         if (ks == '["language","value"]' || ks == '["datatype","value"]') {
           row.push("<span class='nonUri'>" + formatLiteral(value) + "</span>");
-        } else if (Array.isArray(value) && value.length > 0 && typeof value[0] != 'object') {
-          row.push("XXX");
         } else {
           var div = $('<div/>');
           var table = $('<table class="nested row-border"/>');
