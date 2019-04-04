@@ -73,19 +73,17 @@ table.nested {
   border: 1px solid #bbb;
   width: 100%;
 }
-table.nested th {
+table.jsonResultTable th {
   border-bottom: 1px solid black;
 }
 table.nested td {
   padding: 5px;
   margin: 0;
 }
-table.dataTable tbody td {
+table.jsonResultTable td {
   vertical-align: top;
   text-align: left;
-}
-table.dataTable tr {
-  border-bottom: 1px solid #888;
+  border-bottom: 1px solid #bbb;
 }
 </style>
 </head>
@@ -239,7 +237,7 @@ function getTableRows(data, columns) {
           row.push("<span class='nonUri'>" + formatLiteral(value) + "</span>");
         } else {
           var div = $('<div/>');
-          var table = $('<table class="nested row-border"/>');
+          var table = $('<table class="nested"/>');
           div.append(table);
           if (!Array.isArray(value)) value = [value];
           makeTable(value, table);
@@ -265,7 +263,7 @@ function getTableColumns(columns) {
 }
 
 function makeResultTable(data) {
-  table = $('<table id="datatable" class="nested row-border"/>');
+  table = $('<table id="datatable" class="jsonResultTable"/>');
   $('#result').append(table);
   var columns = makeTableHeader(data, null);
   $('#datatable').DataTable({
@@ -302,7 +300,7 @@ function makeTable(data, element) {
         } else {
           var cell = $('<td class="nested"/>');
           row.append(cell);
-          var table = $('<table class="nested row-border"/>');
+          var table = $('<table class="nested"/>');
           cell.append(table);
           if (!Array.isArray(value)) value = [value];
           makeTable(value, table);
