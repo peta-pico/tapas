@@ -68,22 +68,29 @@ input {
 #result {
   margin-top: 1em;
 }
-table.nested {
-  border-collapse: collapse;
-  border: 1px solid #bbb;
-  width: 100%;
+table.jsonResultTable thead th {
+  padding: 7px 10px;
 }
 table.jsonResultTable th {
+  text-align: left;
   border-bottom: 1px solid black;
-}
-table.nested td {
-  padding: 5px;
-  margin: 0;
 }
 table.jsonResultTable td {
   vertical-align: top;
   text-align: left;
   border-bottom: 1px solid #bbb;
+}
+table.nested {
+  border-collapse: collapse;
+  border: 1px solid #bbb;
+  width: 100%;
+}
+table.nested td {
+  padding: 5px;
+  margin: 0;
+}
+#datatable_info {
+  display:none;
 }
 </style>
 </head>
