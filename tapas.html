@@ -274,7 +274,7 @@ function makeResultTable(data) {
   $('#result').append(table);
   var columns = makeTableHeader(data, null);
   $('#datatable').DataTable({
-    autoWidth: true,
+    autoWidth: false,
     dom: '<"dtTopHeader"ilf>rtip',
     order: [],
     pageLength: 50,
@@ -282,8 +282,7 @@ function makeResultTable(data) {
     lengthChange: true,
     pagingType: "full_numbers",
     data: getTableRows(data, columns),
-    columns: getTableColumns(columns),
-    autoWidth: false
+    columns: getTableColumns(columns)
   });
 }
 
