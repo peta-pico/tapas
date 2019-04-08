@@ -289,7 +289,7 @@ function makeResultTable(data) {
 function makeTable(data, element) {
   var columns = makeTableHeader(data, element);
   for (var i = 0; i < data.length; i++) {
-    var row = $('<tr class="nested"/>');
+    var row = $('<tr/>');
     for (var c = 0; c < columns.length; c++) {
       var value;
       if (columns[c] == null) {
@@ -301,11 +301,9 @@ function makeTable(data, element) {
       if (typeof value === 'object') {
         var ks = getKeyScheme(value);
         if (ks == '["language","value"]' || ks == '["datatype","value"]') {
-          row.append($('<td class="nested"/>').html("<span class='nonUri'>" + formatLiteral(value) + "</span>"));
-//        } else if (Array.isArray(value) && value.length > 0 && typeof value[0] != 'object') {
-//          row.append($('<td class="nested"/>').html("XXX"));
+          row.append($('<td/>').html("<span class='nonUri'>" + formatLiteral(value) + "</span>"));
         } else {
-          var cell = $('<td class="nested"/>');
+          var cell = $('<td/>');
           row.append(cell);
           var table = $('<table class="nested"/>');
           cell.append(table);
@@ -313,9 +311,9 @@ function makeTable(data, element) {
           makeTable(value, table);
         }
       } else if (urlPattern.test(value)) {
-        row.append($('<td class="nested"/>').html("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>"));
+        row.append($('<td/>').html("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>"));
       } else {
-        row.append($('<td class="nested"/>').html(value));
+        row.append($('<td/>').html(value));
       }
     }
     element.append(row);
@@ -362,9 +360,9 @@ function makeTableHeader(data, element) {
   // Move 'id' to first place:
   columns.sort(function(x,y) { return x == 'id' ? -1 : y == 'id' ? 1 : 0; });
   if (element != null) {
-    var header = $('<tr class="nested"/>');
+    var header = $('<tr/>');
     for (var c = 0; c < columns.length; c++) {
-      header.append($('<th class="nested"/>').html(columns[c]));
+      header.append($('<th/>').html(columns[c]));
     }
     element.append(header);
   }
