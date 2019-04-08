@@ -288,33 +288,11 @@ function makeResultTable(data) {
 
 function makeTable(data, element) {
   var columns = makeTableHeader(data, element);
-  for (var i = 0; i < data.length; i++) {
+  var rows = getTableRows(data, columns);
+  for (var i = 0; i < rows.length; i++) {
     var row = $('<tr/>');
-    for (var c = 0; c < columns.length; c++) {
-      var value;
-      if (columns[c] == null) {
-        value = data[i];
-      } else {
-        value = data[i][columns[c]];
-      }
-      if (value == null) value = "";
-      if (typeof value === 'object') {
-        var ks = getKeyScheme(value);
-        if (ks == '["language","value"]' || ks == '["datatype","value"]') {
-          row.append($('<td/>').html("<span class='nonUri'>" + formatLiteral(value) + "</span>"));
-        } else {
-          var cell = $('<td/>');
-          row.append(cell);
-          var table = $('<table class="nested"/>');
-          cell.append(table);
-          if (!Array.isArray(value)) value = [value];
-          makeTable(value, table);
-        }
-      } else if (urlPattern.test(value)) {
-        row.append($('<td/>').html("<a class='uri' target='_blank' href='" + value + "'>" + value + "</a>"));
-      } else {
-        row.append($('<td/>').html(value));
-      }
+    for (var j = 0; j < rows[i].length; j++) {
+      row.append($('<td/>').html(rows[i][j]));
     }
     element.append(row);
   }
