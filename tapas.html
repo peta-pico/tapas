@@ -325,7 +325,15 @@ function formatLiteral(literal) {
 }
 
 function escapeHtmlEntities(unescaped) {
-    return ("" + unescaped).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return ("" + unescaped).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function sortParams(array) {
+  return array.sort(function(l, r) {
+    var lv = l["name"];
+    var rv = r["name"];
+    return ((lv < rv) ? -1 : ((lv > rv) ? 1 : 0));
+  });
 }
 
 function makeTableHeader(data, element) {
@@ -408,7 +416,8 @@ if (op) {
       return;
     }
     var opSpec = data.paths[op].get;
-    $('#input-fields').json2html(opSpec.parameters, transforms.form);
+    //alert(JSON.stringify(opSpec.parameters));
+    $('#input-fields').json2html(sortParams(opSpec.parameters), transforms.form);
     if (opSpec.summary) {
       $('#summary').html(opSpec.summary);
     }
