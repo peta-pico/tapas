@@ -95,6 +95,9 @@ table.nested td {
 #datatable_info {
   display:none;
 }
+::placeholder {
+  color: #aaa;
+}
 </style>
 </head>
 
@@ -190,7 +193,7 @@ var transforms = {
       return '';
     } else {
       params.push(this.name);
-      if (this.type === "iri") {
+      if (this.format === "iri") {
         return( json2html.transform(this, transforms.iri_input) );
       } else {
         return( json2html.transform(this, transforms.string_input) );
