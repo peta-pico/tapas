@@ -224,7 +224,7 @@ var transforms = {
       {'<>':'input', 'class':'iri_input', 'placeholder':'http://...', 'id':'input_${name}', 'value':function() {
         value = $.urlParam('param_' + this.name);
         if (value != null) {
-          return decodeURI(value);
+          return decodeURIComponent(value);
         }
         return this.default;
       }},
