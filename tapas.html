@@ -203,7 +203,13 @@ var transforms = {
   string_input:[
     {'<>':'td', 'text':'${name}: '},
     {'<>':'td', 'html':[
-      {'<>':'input', 'class':'string_input', 'id':'input_${name}', 'value':'${default}'},
+      {'<>':'input', 'class':'string_input', 'id':'input_${name}', 'value':function() {
+        value = $.urlParam('param_' + this.name);
+        if (value != null) {
+          return value;
+        }
+        return this.default;
+      }},
       {'<>':'span', 'text':function() {
         if (this.required) {
           requiredParams.push(this.name);
