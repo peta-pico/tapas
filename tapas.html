@@ -448,6 +448,10 @@ if (op) {
     $('#refresh').show();
   });
 
+  if ($.urlParam('autosubmit') != null) {
+    showResults();
+  }
+
   document.getElementById('submit').onclick=showResults
 
 } else if (api) {
