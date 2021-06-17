@@ -448,7 +448,8 @@ if (op) {
     $('#refresh').show();
   });
 
-  if ($.urlParam('autosubmit')) {
+  autosubmit = $.urlParam('autosubmit')
+  if (autosubmit != null && autosubmit = 'on') {
     showResults();
   }
 
