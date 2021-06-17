@@ -205,6 +205,8 @@ var transforms = {
     {'<>':'td', 'html':[
       {'<>':'input', 'class':'string_input', 'id':'input_${name}', 'value':function() {
         value = $.urlParam('param_' + this.name);
+        console.log(this.name);
+        console.log(value);
         if (value != null) {
           return value;
         }
