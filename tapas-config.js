@@ -10,3 +10,4 @@ var defaultApiShortName = null;
 var apiChangeable = true;
 var hidePageField = true;
 var hideEndpointField = true;
+var prefixes = {};
