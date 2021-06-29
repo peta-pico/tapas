@@ -1,3 +1,4 @@
 *~
 local-tapas-config.js
+*.bak
 /publish.sh
