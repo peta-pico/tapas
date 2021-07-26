@@ -238,7 +238,7 @@ var transforms = {
   ],
   ops:{'<>':'ul', 'html':[
     {'<>':'li', 'html':[
-      {'<>':'a', 'href':('?' + apiUrlStringP + 'op=${key}'), 'text':'${key}'}
+      {'<>':'a', 'href':('?' + apiUrlStringP + 'op=${key}'), 'text':function() {return this.key.replace(/^\//, '')}}
     ]}
   ]}
 };
@@ -442,6 +442,7 @@ function showResults() {
 
 if (op) {
   $('#title').html('<a href="?' + apiUrlString + '">' + apiShortName + '</a>: ' + op.replace(/^\//, ''));
+  document.title = op.replace(/^\//, '');
 
   $('#loading').show();
   getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
@@ -477,7 +478,8 @@ if (op) {
   document.getElementById('submit').onclick=showResults
 
 } else if (api) {
-  $('#title').html(apiLongName);
+  $('#title').html(apiShortName);
+  document.title = apiShortName;
 
   $('#loading').show();
   getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
