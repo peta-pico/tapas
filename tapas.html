@@ -408,6 +408,8 @@ function getSpec(url, success) {
 
 var jsonQuery = false;
 
+var queryPrefixes = {};
+
 function getPrefixes() {
   return prefixes
 }
@@ -431,7 +433,7 @@ function showResults() {
         YASR($("#result"), {
           getUsedPrefixes: getPrefixes
         }).setResponse({
-          response:data,
+          response: data,
           contentType: 'text/csv'
         });
         hideStringType()
@@ -453,7 +455,6 @@ if (op) {
       return;
     }
     var opSpec = data.paths[op].get;
-    //alert(JSON.stringify(opSpec.parameters));
     $('#input-fields').json2html(sortParams(opSpec.parameters), transforms.form);
     if (opSpec.summary) {
       $('#summary').html(opSpec.summary);
@@ -463,6 +464,10 @@ if (op) {
       if (d.charAt(i) == '\n' || d.charAt(i) == ' ' || d.charAt(i) == '`') continue;
       if (d.charAt(i) == '{') jsonQuery = true;
       break;
+    }
+    // TODO: do proper SPARQL parsing to get prefixes:
+    for (match of d.matchAll('(prefix|PREFIX)\\s+([^:\\s]*):\\s+<([^<>]+)>')) {
+      prefixes[match[2]] = match[3].replace("&", "&amp;")
     }
     $('#loading').hide();
     $('#oplist').hide();
