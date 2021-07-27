@@ -148,6 +148,9 @@ table.nested td {
 
 <script>
 
+YASR.plugins.table.defaults.mergeLabelsWithUris = true;
+YASR.plugins.table.defaults.fetchTitlesFromPreflabel = false;
+
 $.urlParam = function(name) {
   var p = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
   if (p == null) {
@@ -407,8 +410,6 @@ function getSpec(url, success) {
 }
 
 var jsonQuery = false;
-
-var queryPrefixes = {};
 
 function getPrefixes() {
   return prefixes
