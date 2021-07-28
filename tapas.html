@@ -330,7 +330,8 @@ function getKeyScheme(obj) {
 function formatLiteral(literal) {
   var stringRepresentation = escapeHtmlEntities(literal.value);
   if ("language" in literal) {
-    stringRepresentation = '"' + stringRepresentation + '"<sup>@' + literal.language + "</sup>";
+    //stringRepresentation = '"' + stringRepresentation + '"<sup>@' + literal.language + "</sup>";
+    stringRepresentation = stringRepresentation + '<sup>@' + literal.language + "</sup>";
   } else if ("datatype" in literal) {
     var xmlSchemaNs = "http://www.w3.org/2001/XMLSchema#";
     var dataType = literal.datatype;
@@ -340,9 +341,10 @@ function formatLiteral(literal) {
       dataType = "&lt;" + dataType + "&gt;";
     }
     if (dataType == "xsd:string") {
-      stringRepresentation = '"' + stringRepresentation + '"';
+      //stringRepresentation = '"' + stringRepresentation + '"';
     } else {
-      stringRepresentation = '"' + stringRepresentation + '"<sup>^^' + dataType + "</sup>";
+      //stringRepresentation = '"' + stringRepresentation + '"<sup>^^' + dataType + "</sup>";
+      stringRepresentation = stringRepresentation + '<sup>^^' + dataType + "</sup>";
     }
   }
   return stringRepresentation;
@@ -429,7 +431,6 @@ function showResults() {
           response: data,
           contentType: 'text/csv'
         });
-        hideStringType()
       }
     }
   })
