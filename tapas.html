@@ -98,6 +98,9 @@ table.nested td {
 ::placeholder {
   color: #aaa;
 }
+sup {
+  display: none;
+}
 </style>
 </head>
 
@@ -143,7 +146,7 @@ table.nested td {
 <script src="lib/jquery.min.js"></script>
 <script src="lib/json2html.min.js"></script>
 <script src="lib/jquery.json2html.min.js"></script>
-<script src="lib/yasr.bundled.min.js"></script>
+<script src="lib/yasr.bundled.min.mod.js"></script>
 <script src="lib/jquery.dataTables.js"></script>
 
 <script>
@@ -355,17 +358,6 @@ function sortParams(array) {
     var rv = r["name"];
     return ((lv < rv) ? -1 : ((lv > rv) ? 1 : 0));
   });
-}
-
-function hideStringType() {
-  let elements = document.getElementsByTagName('sup');
-  for (let x = 0; x < elements.length; x++) {
-    let div = elements[x];
-    let content = div.innerHTML.trim();
-    if (content == '^^xsd:string') {
-        div.style.display = 'none';
-    }
-  }
 }
 
 function makeTableHeader(data, element) {
