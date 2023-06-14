@@ -110,7 +110,7 @@ sup {
 
 <div id="oplist" style="display:none"></div>
 
-<p id="refresh" style="display:none"><a href="#" onclick="localStorage.setItem('grlcSpecCache', null); location.reload();">(click here to refresh)</a></p>
+<p id="refresh" style="display:none"><a href="#" onclick="localStorage.setItem('grlcSpecCache', null); location.reload();">(click here to reload API schema)</a></p>
 
 <p id="loading" style="display:none">Loading...</p>
 
@@ -466,7 +466,7 @@ if (op) {
     $('#loading').hide();
     $('#oplist').hide();
     $('#content').show();
-    $('#refresh').show();
+    $('#refresh').hide();
   });
 
   autosubmit = $.urlParam('autosubmit')
