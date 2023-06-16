@@ -441,7 +441,7 @@ if (op) {
   document.title = op.replace(/^\//, '');
 
   $('#loading').show();
-  getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
+  getSpec(grlcInstance + "/api/" + api + "/swagger", function(data) {
     if (!(op in data.paths)) {
       $("#loading").empty();
       $("#loading").append($("<p>Error: Couldn't find this operation. Refreshing might help.</p>"));
