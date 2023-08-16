@@ -481,7 +481,7 @@ if (op) {
   document.title = apiShortName;
 
   $('#loading').show();
-  getSpec(grlcInstance + "/api/" + api + "/spec", function(data) {
+  getSpec(grlcInstance + "/api/" + api + "/swagger", function(data) {
     $('#oplist').json2html(Object.keys(data.paths).map(key => ({ key:key })), transforms.ops);
     $('#loading').hide();
     $('#oplist').show();
