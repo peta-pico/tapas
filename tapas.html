@@ -164,6 +164,14 @@ $.urlParam = function(name) {
 }
 
 var api = $.urlParam('api');
+var apiType = 'git';
+if (api) {
+  if (api.includes('://')) {
+    apiType = 'url';
+  } else if (api.match('^RA[A-Za-z0-9-_]{43}$')) {
+    apiType = 'np';
+  }
+}
 var op = $.urlParam('op');
 
 if ((!api && defaultApi) || !apiChangeable) {
@@ -174,7 +182,13 @@ var apiUrlString = 'api=' + api;
 var apiUrlStringP = apiUrlString + '&';
 var apiLongName = api;
 var apiShortName;
-if (api) apiShortName = api.replace(/.*\//g,'');
+if (apiType === 'url') {
+  apiShortName = api;
+} else if (apiType == 'np') {
+  apiShortName = api.replace(/^(RA.{8}).*$/,'$1');
+} else {
+  apiShortName = api.replace(/.*\//g,'');
+}
 
 if (defaultApi === api) {
   apiUrlString = '';
@@ -194,6 +208,8 @@ var requiredParams = [];
 var transforms = {
   form:{'<>':'tr', html:function() {
     if (hidePageField && this.name == "page") {
+      return '';
+    } else if (this.name = "specUrl") {
       return '';
     } else if (hideEndpointField && this.name == "endpoint") {
       return '';
@@ -412,7 +428,14 @@ function getPrefixes() {
 function showResults() {
   $("#result").empty();
   $("#result").append($('<p>getting results...</p>'));
-  var url = grlcInstance + "/api/" + api + op + '?&'
+  var url;
+  if (apiType === 'url') {
+    url = grlcInstance + "/api-url/" + op + '?specUrl=' + api;
+  } else if (apiType === 'np') {
+    url = grlcInstance + "/api-url/" + op + '?specUrl=' + npSpecPrefix + api + '/';
+  } else {
+    url = grlcInstance + "/api-git/" + api + op + '?';
+  }
   for (var i = 0; i < params.length; i++) {
     var n = params[i];
     url = url + '&' + n + '=' + encodeURIComponent(document.getElementById('input_' + n).value);
@@ -436,12 +459,21 @@ function showResults() {
   })
 }
 
+function getSpecUrl() {
+  if (apiType === 'url') {
+    return grlcInstance + "/api-url/swagger?specUrl=" + api;
+  } else if (apiType == 'np') {
+    return grlcInstance + "/api-url/swagger?specUrl=" + npSpecPrefix + api + '/';
+  }
+  return grlcInstance + "/api-git/" + api + "/swagger";
+}
+
 if (op) {
   $('#title').html('<a href="?' + apiUrlString + '">' + apiShortName + '</a>: ' + op.replace(/^\//, ''));
   document.title = op.replace(/^\//, '');
 
   $('#loading').show();
-  getSpec(grlcInstance + "/api/" + api + "/swagger", function(data) {
+  getSpec(getSpecUrl(), function(data) {
     if (!(op in data.paths)) {
       $("#loading").empty();
       $("#loading").append($("<p>Error: Couldn't find this operation. Refreshing might help.</p>"));
@@ -481,7 +513,7 @@ if (op) {
   document.title = apiShortName;
 
   $('#loading').show();
-  getSpec(grlcInstance + "/api/" + api + "/swagger", function(data) {
+  getSpec(getSpecUrl(), function(data) {
     $('#oplist').json2html(Object.keys(data.paths).map(key => ({ key:key })), transforms.ops);
     $('#loading').hide();
     $('#oplist').show();
