@@ -124,6 +124,8 @@ sup {
 
 <p><button id="submit">submit</button></p>
 
+<p id="response-time"></p>
+
 </div>
 
 <div id="result">
@@ -440,10 +442,13 @@ function showResults() {
     var n = params[i];
     url = url + '&' + n + '=' + encodeURIComponent(document.getElementById('input_' + n).value);
   }
+  var sent = (new Date()).getTime();
+  $('#response-time').html('');
   $.ajax({
     type: "GET",
     url: url,
     success: function(data,status,xhr) {
+      $('#response-time').html('Response time: ' + (((new Date()).getTime() - sent)/1000) + 's');
       $("#result").empty();
       if (jsonQuery) {
         makeResultTable(data);
