@@ -4,7 +4,7 @@
 // (not under version control), which overrides the configuration specified here.
 
 var grlcInstance = 'https://grlc.knowledgepixels.com';
-var npSpecPrefix = 'https://nanodash.knowledgepixels.com/grlc-spec/';
+var npSpecPrefix = 'https://query.knowledgepixels.com/grlc-spec/';
 var defaultApi = null;
 var defaultApiLongName = null;
 var defaultApiShortName = null;
